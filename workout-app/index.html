@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f1115">
+<title>KINTORE — 筋トレ記録</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo">KIN<span>TORE</span></div>
+  <div class="header-streak" id="headerStreak"></div>
+</header>
+
+<main id="main">
+
+  <!-- ホーム（記録）タブ -->
+  <section class="tab-panel" id="tab-home">
+    <div class="date-nav">
+      <button class="icon-btn" id="datePrev" aria-label="前の日">‹</button>
+      <button class="date-display" id="dateDisplay"></button>
+      <input type="date" id="datePicker" class="visually-hidden">
+      <button class="icon-btn" id="dateNext" aria-label="次の日">›</button>
+    </div>
+
+    <div id="workoutArea"></div>
+
+    <button class="btn-primary btn-block" id="addExerciseBtn">＋ 種目を追加</button>
+  </section>
+
+  <!-- 履歴タブ -->
+  <section class="tab-panel hidden" id="tab-history">
+    <div class="calendar-card card">
+      <div class="calendar-head">
+        <button class="icon-btn" id="calPrev">‹</button>
+        <div id="calTitle"></div>
+        <button class="icon-btn" id="calNext">›</button>
+      </div>
+      <div class="calendar-grid" id="calGrid"></div>
+    </div>
+    <div id="historyList"></div>
+  </section>
+
+  <!-- 統計タブ -->
+  <section class="tab-panel hidden" id="tab-stats">
+    <div class="stat-cards" id="statCards"></div>
+
+    <div class="card">
+      <h3 class="card-title">週間ボリューム <small>(直近8週間)</small></h3>
+      <div id="weeklyChart"></div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">推定1RMの推移</h3>
+      <select id="statExerciseSelect" class="select"></select>
+      <div id="rmChart"></div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">部位別ボリューム <small>(直近30日)</small></h3>
+      <div id="muscleChart"></div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">自己ベスト (PR)</h3>
+      <div id="prList"></div>
+    </div>
+  </section>
+
+  <!-- 種目タブ -->
+  <section class="tab-panel hidden" id="tab-exercises">
+    <div class="muscle-filter" id="muscleFilter"></div>
+    <div id="exerciseList"></div>
+    <button class="btn-primary btn-block" id="newExerciseBtn">＋ カスタム種目を作成</button>
+  </section>
+
+  <!-- 設定タブ -->
+  <section class="tab-panel hidden" id="tab-settings">
+    <div class="card">
+      <h3 class="card-title">レストタイマー</h3>
+      <label class="setting-row">
+        <span>セット完了時に自動スタート</span>
+        <input type="checkbox" id="autoTimerToggle">
+      </label>
+      <label class="setting-row">
+        <span>デフォルト時間</span>
+        <select id="restSecSelect" class="select select-inline">
+          <option value="60">60秒</option>
+          <option value="90">90秒</option>
+          <option value="120">120秒</option>
+          <option value="180">180秒</option>
+          <option value="300">300秒</option>
+        </select>
+      </label>
+    </div>
+    <div class="card">
+      <h3 class="card-title">データ管理</h3>
+      <button class="btn-secondary btn-block" id="exportBtn">データをエクスポート (JSON)</button>
+      <label class="btn-secondary btn-block file-label">
+        データをインポート
+        <input type="file" id="importInput" accept="application/json" class="visually-hidden">
+      </label>
+      <button class="btn-danger btn-block" id="resetBtn">全データを削除</button>
+    </div>
+    <p class="about">KINTORE v1.0 — データはこの端末のブラウザにのみ保存されます。</p>
+  </section>
+
+</main>
+
+<!-- レストタイマー -->
+<div class="rest-timer hidden" id="restTimer">
+  <div class="rest-progress" id="restProgress"></div>
+  <div class="rest-body">
+    <div class="rest-time" id="restTime">1:30</div>
+    <div class="rest-actions">
+      <button class="btn-small" id="restMinus">-15秒</button>
+      <button class="btn-small" id="restPlus">+15秒</button>
+      <button class="btn-small btn-skip" id="restSkip">スキップ</button>
+    </div>
+  </div>
+</div>
+
+<!-- 下部ナビ -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-tab="home"><span class="nav-icon">🏋️</span>記録</button>
+  <button class="nav-btn" data-tab="history"><span class="nav-icon">📅</span>履歴</button>
+  <button class="nav-btn" data-tab="stats"><span class="nav-icon">📈</span>統計</button>
+  <button class="nav-btn" data-tab="exercises"><span class="nav-icon">📋</span>種目</button>
+  <button class="nav-btn" data-tab="settings"><span class="nav-icon">⚙️</span>設定</button>
+</nav>
+
+<!-- 種目選択モーダル -->
+<div class="modal-overlay hidden" id="pickerModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>種目を選択</h3>
+      <button class="icon-btn" data-close="pickerModal">✕</button>
+    </div>
+    <input type="search" id="pickerSearch" class="input" placeholder="種目名で検索...">
+    <div class="muscle-filter" id="pickerFilter"></div>
+    <div class="picker-list" id="pickerList"></div>
+  </div>
+</div>
+
+<!-- 種目作成モーダル -->
+<div class="modal-overlay hidden" id="createModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>カスタム種目を作成</h3>
+      <button class="icon-btn" data-close="createModal">✕</button>
+    </div>
+    <label class="field-label">種目名</label>
+    <input type="text" id="createName" class="input" placeholder="例: ブルガリアンスクワット">
+    <label class="field-label">部位</label>
+    <select id="createMuscle" class="select"></select>
+    <button class="btn-primary btn-block" id="createSubmit">作成する</button>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
