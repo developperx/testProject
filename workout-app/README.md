@@ -3,7 +3,15 @@
 ブラウザだけで動く、インストール不要・ビルド不要の筋トレ記録アプリです。
 データはすべて端末のブラウザ（localStorage）に保存されるため、オフラインでも動作し、外部にデータが送信されることはありません。
 
-## 使い方
+## 公開URL (GitHub Pages)
+
+masterブランチにマージすると、GitHub Actionsで自動デプロイされます:
+
+> https://developperx.github.io/testProject/
+
+※ 初回のみリポジトリの Settings → Pages → Source を「GitHub Actions」に設定してください。
+
+## ローカルでの使い方
 
 `index.html` をブラウザで開くだけです。
 
